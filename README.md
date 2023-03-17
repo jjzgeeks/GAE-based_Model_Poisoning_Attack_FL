@@ -2,7 +2,7 @@
 These codes are about graph autoencoder-based model poisoning attack against federated learning.
 
 
-## Reference
+## References
 1. https://github.com/aswarth123/Federated_Learning_MNIST
 2. https://github.com/zfjsail/gae-pytorch
 
