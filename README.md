@@ -7,4 +7,4 @@ These codes are about graph autoencoder-based model poisoning attack against fed
 2. https://github.com/zfjsail/gae-pytorch
 
 ## Requirements
-- Install requirements via  'pip install -r requirements.txt'
+- Install requirements via  `pip install -r requirements.txt`
