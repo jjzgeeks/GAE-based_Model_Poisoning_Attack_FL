@@ -9,5 +9,7 @@ These codes are about graph autoencoder-based model poisoning attack against fed
 ## Requirements
 - Install requirements via  `pip install -r requirements.txt`
 
+import copyCodeBlock from '@pickra/copy-code-block';
+copyCodeBlock('<div>Thundercats</div>')
 ## How to run :point_down:
 $`python FL_SVM_GAE_Attack_Device_Side.py`
