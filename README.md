@@ -10,4 +10,4 @@ These codes are about graph autoencoder-based model poisoning attack against fed
 - Install requirements via  `pip install -r requirements.txt`
 
 ## How to run :point_down:
-$ `python FL_SVM_GAE_Attack_Device_Side.py`
+$`python FL_SVM_GAE_Attack_Device_Side.py`
