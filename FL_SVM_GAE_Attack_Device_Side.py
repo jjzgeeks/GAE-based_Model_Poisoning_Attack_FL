@@ -200,7 +200,7 @@ if __name__ == '__main__':
        # plt.legend()
        plt.xlabel('Communication rounds')
        plt.ylabel('Accuracy of clients')
-    # #plt.title('Communication rounds ={}, local iterations = {}'.format(n_global_commu_round, n_iters))  # 显示图例
+    # #plt.title('Communication rounds ={}, local iterations = {}'.format(n_global_commu_round, n_iters))  # show legend
        plt.savefig('./FL_GAE_attack_results/clients_side/local_devices_accuracy_{}_{}_{}_{}_{}.png'.format(x, n_clients, n_global_commu_round,n_iters, num_malicious))
     # #plt.savefig('./FL_GAE_attack_results/local_devices_accuracy_{}_{}_{}_{}.eps'.format(x, n_clients, n_global_commu_round, n_iters))
     #
