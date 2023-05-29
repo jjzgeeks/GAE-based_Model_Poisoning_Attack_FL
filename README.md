@@ -9,7 +9,6 @@ These codes are about graph autoencoder-based model poisoning attack against fed
 ```
 python FL_SVM_GAE_Attack_Device_Side.py 
 
-
 ```
 
 
