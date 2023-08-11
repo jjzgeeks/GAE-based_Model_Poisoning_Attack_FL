@@ -82,21 +82,25 @@ class Federated_SVM:
                 print('client', j + 1, self.clients[j].accuracy())
 
             parameter_list = [self.clients[k].w for k in range(0, self.n_clients)]   # all weights of clients
-            local_weights_array = np.array(parameter_list) # benign clients; print(local_weights_array.shape) # 3*784
+            local_weights_array = np.array(parameter_list) # benign clients; print(local_weights_array.shape) # n*784, n is the number of clients
+
+            num_select = 5 #5, 10, 15, 20. eavesdropped the number of benign models
+            random_pick_indices = np.random.choice(self.n_clients, size=num_select, replace=False)
+            select_local_weights = local_weights_array[random_pick_indices]
 
             #generates malicious clients
             w_attack_set = []
             for mali in range(num_malicious):
                  if i == 0:
                     rng = np.random.default_rng(seed=42)
-                    initialization_graph_matrix = rng.random((self.n_clients, self.n_clients))
+                    initialization_graph_matrix = rng.random((num_select, num_select))
                      #initialization_graph_matrix = np.random.rand(self.n_clients, self.n_clients)
-                    w_attack, new_adj_matrix, gae_loss, dist = fl_to_gae(local_weights_array, initialization_graph_matrix)
+                    w_attack, new_adj_matrix, gae_loss, dist = fl_to_gae(select_local_weights, initialization_graph_matrix)
                     self.gae_loss_list.append(gae_loss)
                     self.dist.append(dist)
                  else:
                     new_graph_edges = copy.deepcopy(new_adj_matrix)
-                    w_attack, new_adj_matrix, gae_loss, dist = fl_to_gae(local_weights_array, new_graph_edges)
+                    w_attack, new_adj_matrix, gae_loss, dist = fl_to_gae(select_local_weights, new_graph_edges)
                     self.gae_loss_list.append(gae_loss)
                     self.dist.append(dist)
                  w_attack.flatten()
@@ -126,102 +130,96 @@ class Federated_SVM:
         return accuracy_score(self.y_test, self.predict(w))
 
 
-
-
 if __name__ == '__main__':
     dataset = ["mnist", "fashion_mnist", "cifar10"]
-    x = dataset[1]
 
-
-    # choose dataset
-    if x == "mnist":
-        """Loading the data"""
-        data = load_mnist_return_required_digits(0, 6)  # load data, image of digit 0 and digit 6
-    elif x == "fashion_mnist":
-        data = load_fashion_mnist_return_required_digits(0,6)
-    else:
-        """0:airplane; 1:automobile; 2:bird; 3:cat; 4:deer;
-        5:dog; 6:frog; 7:horse; 8:ship; 9:truck"""
-        data = load_cifar10_return_required_digits(0, 6)  # load data, image of label 1 and label 7
-
-    """Creation of individual train sets for the clients, 
-    global train set for the SVM model and a global test set 
-    containing the data from all the clusters"""
-    # n_clients = n_clusters # number of clients
-    num_clients_index = [5, 10, 15, 20, 25]
-    num_malicious_clients_index = [2, 4, 6, 8, 10]
-    for id in range(len(num_clients_index)):
-       n_clients = num_clients_index[id]  # number of clients
-       clients_X, clients_y, X_test, y_test = get_clients(data[0][0], data[1][0], n_clients)
-       xtrain_gl, ytrain_gl = get_total_from_clients(clients_X, clients_y)
-
-
-
-       """ Batch global / SGD+Batch"""
-       num_iters_index=[2,3,4,5]
-       n_iters = num_iters_index[3] # number of local iterations
-
-       num_global_commu_round_index = [100, 200, 300, 400, 500]
-       n_global_commu_round =  num_global_commu_round_index[0] # number of global communicaton round
+    for x in dataset:
+        # choose dataset
+        if x == "mnist":
+            """Loading the data"""
+            data = load_mnist_return_required_digits(0, 6)  # load data, image of digit 0 and digit 6
+        elif x == "fashion_mnist":
+            data = load_fashion_mnist_return_required_digits(3, 8)
+        else:
+            """0:airplane; 1:automobile; 2:bird; 3:cat; 4:deer;
+                5:dog; 6:frog; 7:horse; 8:ship; 9:truck"""
+            data = load_cifar10_return_required_digits(1, 7)  # load data, image of label 1 and label 7
+        """Creation of individual train sets for the clients, 
+        global train set for the SVM model and a global test set 
+        containing the data from all the clusters"""
+        # n_clients = n_clusters # number of clients
+        #num_clients_index = [5, 10, 15, 20, 25]
+        num_clients_index = [25]
+        #num_malicious_clients_index = [2, 4, 6, 8, 10]
+        num_malicious_clients_index = [2, 10]
+        for n_clients in num_clients_index:
+            clients_X, clients_y, X_test, y_test = get_clients(data[0][0], data[1][0], n_clients)
+            xtrain_gl, ytrain_gl = get_total_from_clients(clients_X, clients_y)
 
 
 
-       num_malicious = num_malicious_clients_index[id]  #number of malicious devices
-       f_svm = Federated_SVM(xtrain_gl, ytrain_gl, n_clients, n_iters, val=False,  opt='batch_GD')
-       f_svm.create_clients(clients_X, clients_y, X_test, y_test)
-       Loss, global_accuracy,local_clients_accuracy, gae_loss_list, distance, w_benign, w_attack = f_svm.fit(n_global_commu_round,  num_malicious)
+            """ Batch global / SGD+Batch"""
+            num_iters_index=[2,3,4,5]
+            n_iters = num_iters_index[3] # number of local iterations
+
+            num_global_commu_round_index = [100, 200, 300, 400, 500]
+            n_global_commu_round =  num_global_commu_round_index[0] # number of global communicaton round
 
 
-
-       # plot loss curve
-       # plt.figure()
-       # plt.plot(range(n_global_commu_round), Loss, color="red")
-       # plt.xlabel('Communication rounds')
-       # plt.ylabel('Train_loss')
-       # plt.savefig('./FL_GAE_attack_results/fed_{}_{}_{}_{}.png'.format(x, n_clients, n_global_commu_round, n_iters))
-
-       # # plot global accuracy
-       plt.figure()
-       plt.plot(range(n_global_commu_round), global_accuracy)
-       plt.xlabel('Communication rounds')
-       plt.ylabel('Accuracy of global model')
-       plt.savefig('./FL_GAE_attack_results/clients_side/fed_glob_acc_{}_{}_{}_{}_{}.png'.format(x, n_clients,  n_global_commu_round, n_iters, num_malicious))
-       # #plt.savefig('./fed_glob_acc_{}_{}_{}_{}.eps'.format(x,  n_clients, n_global_commu_round, n_iters))
+            for m_clients in num_malicious_clients_index:
+                f_svm = Federated_SVM(xtrain_gl, ytrain_gl, n_clients, n_iters, val=False,  opt='batch_GD')
+                f_svm.create_clients(clients_X, clients_y, X_test, y_test)
+                Loss, global_accuracy,local_clients_accuracy, gae_loss_list, distance, w_benign, w_attack = f_svm.fit(n_global_commu_round,  m_clients)
 
 
-       # # plot local accuracy
-       plt.figure()
-       #color_list = ['green', 'red', 'yellow', 'blue', 'cyan']
-      # # #color_list = ['red', 'green', 'blue', 'cyan', 'magenta', 'yellow', 'black']
-       #label_list = ['Device 1', 'Device 2', 'Device 3', 'Device 4', 'Device 5']
-       for i in range(n_clients):
-           #plt.plot(range(n_global_commu_round), local_clients_accuracy[i][1:n_global_commu_round + 1], color=color_list[i], label=label_list[i])
-           plt.plot(range(n_global_commu_round), local_clients_accuracy[i][1:n_global_commu_round + 1])
-       # plt.legend()
-       plt.xlabel('Communication rounds')
-       plt.ylabel('Accuracy of clients')
-    # #plt.title('Communication rounds ={}, local iterations = {}'.format(n_global_commu_round, n_iters))  # show legend
-       plt.savefig('./FL_GAE_attack_results/clients_side/local_devices_accuracy_{}_{}_{}_{}_{}.png'.format(x, n_clients, n_global_commu_round,n_iters, num_malicious))
-    # #plt.savefig('./FL_GAE_attack_results/local_devices_accuracy_{}_{}_{}_{}.eps'.format(x, n_clients, n_global_commu_round, n_iters))
-    #
-    #
-    # # plot gae loss curve
-    # plt.figure()
-    # plt.plot(range(n_global_commu_round), gae_loss_list)
-    # plt.xlabel('Communication rounds')
-    # plt.ylabel('gae training loss')
-    # plt.savefig('./FL_GAE_attack_results/gae_loss_{}_{}_{}.png'.format(x,  n_clients, n_global_commu_round, n_iters))
-    #
-    # # plot distance
-    # plt.figure()
-    # plt.plot(range(n_global_commu_round), distance)
-    # plt.xlabel('Communication rounds')
-    # plt.ylabel('distance')
-    # plt.savefig('./FL_GAE_attack_results/distance_{}_{}_{}_{}.png'.format(x,  n_clients, n_global_commu_round, n_iters))
-    #
-       savemat("./FL_GAE_attack_results/clients_side/FL_GAE_results_{}_{}_{}_{}_{}.mat".format(x, n_clients, n_global_commu_round, n_iters, num_malicious), {"Global_model_loss": Loss, "Global_model_accuracy": global_accuracy,
+                # plot loss curve
+                # plt.figure()
+                # plt.plot(range(n_global_commu_round), Loss, color="red")
+                # plt.xlabel('Communication rounds')
+                # plt.ylabel('Train_loss')
+                # plt.savefig('./FL_GAE_attack_results/fed_{}_{}_{}_{}.png'.format(x, n_clients, n_global_commu_round, n_iters))
+
+                # # plot global accuracy
+                plt.figure()
+                plt.plot(range(n_global_commu_round), global_accuracy)
+                plt.xlabel('Communication rounds')
+                plt.ylabel('Accuracy of global model')
+                plt.savefig('./fed_glob_acc_{}_{}_{}_{}_{}.png'.format(x, n_clients,  n_global_commu_round, n_iters, m_clients))
+                # #plt.savefig('./fed_glob_acc_{}_{}_{}_{}.eps'.format(x,  n_clients, n_global_commu_round, n_iters))
+
+
+                # # plot local accuracy
+                plt.figure()
+                #color_list = ['green', 'red', 'yellow', 'blue', 'cyan']
+                # # #color_list = ['red', 'green', 'blue', 'cyan', 'magenta', 'yellow', 'black']
+                #label_list = ['Device 1', 'Device 2', 'Device 3', 'Device 4', 'Device 5']
+                for i in range(n_clients):
+                    #plt.plot(range(n_global_commu_round), local_clients_accuracy[i][1:n_global_commu_round + 1], color=color_list[i], label=label_list[i])
+                    plt.plot(range(n_global_commu_round), local_clients_accuracy[i][1:n_global_commu_round + 1])
+                # plt.legend()
+                plt.xlabel('Communication rounds')
+                plt.ylabel('Accuracy of clients')
+                # #plt.title('Communication rounds ={}, local iterations = {}'.format(n_global_commu_round, n_iters))  # show legend
+                plt.savefig('./local_devices_accuracy_{}_{}_{}_{}_{}.png'.format(x, n_clients, n_global_commu_round,n_iters, m_clients))
+                # #plt.savefig('./FL_GAE_attack_results/local_devices_accuracy_{}_{}_{}_{}.eps'.format(x, n_clients, n_global_commu_round, n_iters))
+                #
+                #
+                # # plot gae loss curve
+                # plt.figure()
+                # plt.plot(range(n_global_commu_round), gae_loss_list)
+                # plt.xlabel('Communication rounds')
+                # plt.ylabel('gae training loss')
+                # plt.savefig('./FL_GAE_attack_results/gae_loss_{}_{}_{}.png'.format(x,  n_clients, n_global_commu_round, n_iters))
+                #
+                # # plot distance
+                # plt.figure()
+                # plt.plot(range(n_global_commu_round), distance)
+                # plt.xlabel('Communication rounds')
+                # plt.ylabel('distance')
+                # plt.savefig('./FL_GAE_attack_results/distance_{}_{}_{}_{}.png'.format(x,  n_clients, n_global_commu_round, n_iters))
+                #
+                savemat("./FL_GAE_results_{}_{}_{}_{}_{}.mat".format(x, n_clients, n_global_commu_round, n_iters, m_clients), {"Global_model_loss": Loss, "Global_model_accuracy": global_accuracy,
                                  "Local_model_accuracy": local_clients_accuracy, "GAE_loss":  gae_loss_list,
                            "Distance":distance, "local_benign_weights":w_benign, "local_malicious_weights": w_attack})
-       plt.show()
-       plt.close()
-    #
+                plt.show()
+                plt.close()
