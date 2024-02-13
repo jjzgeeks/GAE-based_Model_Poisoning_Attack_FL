@@ -1,7 +1,7 @@
 # GAE-based_Model_Poisoning_Attack_FL
 These codes are about graph autoencoder-based model poisoning attack against federated learning.
 
-Li, K., Zheng, J., Yuan, X., Ni, W., Akan, O. B., & Poor, H. V. (2023). Data-Agnostic Model Poisoning against Federated Learning: A Graph Autoencoder Approach. arXiv preprint arXiv:2311.18498. The more details can be found [here](https://arxiv.org/abs/2311.18498)
+K. Li, J. Zheng, X. Yuan, W. Ni, O. B. Akan and H. V. Poor, "Data-Agnostic Model Poisoning Against Federated Learning: A Graph Autoencoder Approach," in IEEE Transactions on Information Forensics and Security, vol. 19, pp. 3465-3480, 2024, doi: 10.1109/TIFS.2024.3362147. keywords: {Data models;Computational modeling;Training;Servers;Correlation;Wireless communication;Security;Federated learning;model poisoning attack;graph autoencoder;feature correlation}. The more details can be found [here](https://ieeexplore.ieee.org/document/10419367)
 
 ## Requirements
 - Install requirements via  `pip install -r requirements.txt`
