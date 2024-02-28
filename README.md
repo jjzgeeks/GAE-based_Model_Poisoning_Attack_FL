@@ -17,4 +17,14 @@ python FL_SVM_GAE_Attack_Device_Side.py
 1. https://github.com/aswarth123/Federated_Learning_MNIST
 2. https://github.com/zfjsail/gae-pytorch
 
+# Citation
+```
+@article{li2024data,
+  title={Data-Agnostic Model Poisoning against Federated Learning: A Graph Autoencoder Approach},
+  author={Li, Kai and Zheng, Jingjing and Yuan, Xin and Ni, Wei and Akan, Ozgur B and Poor, H Vincent},
+  journal={IEEE Transactions on Information Forensics and Security},
+  year={2024},
+  publisher={IEEE}
+}
+```
 
