@@ -3,7 +3,7 @@ These codes are about graph autoencoder-based model poisoning attack against fed
 
 Here is a structure of  GAE-based federated learning model poisoning attack:
 
-![Image alt text.](/blob/main/readme_pics/GAE-based_attack.png) 
+![Image alt text.](https://github.com/jjzgeeks/GAE-based_Model_Poisoning_Attack_FL/blob/main/readme_pics/GAE-based_attack.png) 
 The proposed GAE model for generating data-agnostic, malicious local models, where the attacker overhears the benign local model $W_k^t$,  $\forall k$ and applies the GCN-based encoder to create representation $Z^M$ . The output of the encoder, i.e., the feature representations, is input to the decoder for feature reconstruction.
 
 
