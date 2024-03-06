@@ -1,6 +1,12 @@
 # GAE-based_Model_Poisoning_Attack_FL
 These codes are about graph autoencoder-based model poisoning attack against federated learning.
 
+Here is a structure of  GAE-based federated learning model poisoning attack:
+
+![Image Alt text](/readme_pics/GAE-based_attack.png)
+The proposed GAE model for generating data-agnostic, malicious local models, where the attacker overhears the benign local model $W_k^t$,  $\forall k$ and applies the GCN-based encoder to create representation $Z^M$ . The output of the encoder, i.e., the feature representations, is input to the decoder for feature reconstruction.
+
+
 K. Li, J. Zheng, X. Yuan, W. Ni, O. B. Akan and H. V. Poor, "Data-Agnostic Model Poisoning Against Federated Learning: A Graph Autoencoder Approach," in IEEE Transactions on Information Forensics and Security, vol. 19, pp. 3465-3480, 2024, doi: 10.1109/TIFS.2024.3362147. The more details can be found [here](https://ieeexplore.ieee.org/document/10419367)
 
 ## Requirements
